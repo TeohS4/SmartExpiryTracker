@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { 
+  ScrollView, 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  StyleSheet, 
+  ActivityIndicator, 
+  Image, 
+  Modal, 
+  Dimensions 
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome } from '@expo/vector-icons';
 import { analyzeIngredientsFromImage } from '../services/AiService';
@@ -29,6 +39,7 @@ export function IngredientScanner({
   setSummary,
 }: IngredientScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const cleanMarkdownText = (rawText: string) => {
     return rawText
@@ -158,10 +169,19 @@ export function IngredientScanner({
 
         {/* Uploaded Image Preview */}
         {imageUri && (
-          <View style={[styles.previewContainer, { backgroundColor: theme.subCardBg, borderColor: theme.cardBorder }]}>
-            <Image source={{ uri: imageUri }} style={styles.previewImage} />
-            <Text style={[styles.previewText, { color: theme.textColor }]}>Ingredient Label Captured ✓</Text>
-          </View>
+          <TouchableOpacity 
+            activeOpacity={0.9} 
+            onPress={() => setIsModalVisible(true)}
+          >
+            <View style={[styles.previewContainer, { backgroundColor: theme.subCardBg, borderColor: theme.cardBorder }]}>
+              <Image source={{ uri: imageUri }} style={styles.previewImage} />
+              <View style={styles.previewTextWrapper}>
+                <Text style={[styles.previewText, { color: theme.textColor }]}>Ingredient Label Captured ✓</Text>
+                <Text style={styles.previewSubText}>Tap to enlarge</Text>
+              </View>
+              <FontAwesome name="search-plus" size={16} color={theme.taglineColor} style={styles.searchIcon} />
+            </View>
+          </TouchableOpacity>
         )}
 
         {/* AI Processing Indicator */}
@@ -187,9 +207,43 @@ export function IngredientScanner({
           </View>
         )}
       </View>
+
+      {/* During Image Preview Modal */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity 
+            style={styles.closeButton} 
+            onPress={() => setIsModalVisible(false)}
+          >
+            <FontAwesome name="times" size={20} color="#fff" />
+          </TouchableOpacity>
+
+          <ScrollView 
+            maximumZoomScale={3} 
+            minimumZoomScale={1}
+            contentContainerStyle={styles.modalScrollContent}
+            centerContent={true}
+          >
+            {imageUri && (
+              <Image 
+                source={{ uri: imageUri }} 
+                style={styles.fullScreenImage} 
+                resizeMode="contain" 
+              />
+            )}
+          </ScrollView>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
+
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   scrollContainer: { paddingBottom: 40 },
@@ -206,7 +260,10 @@ const styles = StyleSheet.create({
 
   previewContainer: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderRadius: 10, borderWidth: 1 },
   previewImage: { width: 48, height: 48, borderRadius: 8, borderWidth: 1, borderColor: '#cbd5e1' },
+  previewTextWrapper: { flex: 1 },
   previewText: { fontSize: 13, fontFamily: 'Roboto_500Medium' },
+  previewSubText: { fontSize: 11, color: '#94a3b8', fontFamily: 'Roboto_400Regular', marginTop: 2 },
+  searchIcon: { marginRight: 4 },
 
   loadingBox: { padding: 20, borderRadius: 12, alignItems: 'center', gap: 10 },
   loadingText: { fontSize: 13, fontFamily: 'Roboto_500Medium' },
@@ -215,4 +272,34 @@ const styles = StyleSheet.create({
   summaryTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   summaryTitle: { fontSize: 15, fontFamily: 'Roboto_700Bold' },
   summaryBody: { fontSize: 14, fontFamily: 'Roboto_400Regular', lineHeight: 22 },
+
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalScrollContent: {
+    width: width,
+    height: height,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullScreenImage: {
+    width: width,
+    height: height * 0.8,
+  },
 });

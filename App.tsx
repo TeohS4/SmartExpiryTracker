@@ -32,10 +32,8 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
-
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [navWidth, setNavWidth] = useState(0);
-
   const [fontsLoaded] = useFonts({
     Roboto_400Regular,
     Roboto_500Medium,

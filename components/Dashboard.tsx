@@ -347,8 +347,7 @@ export function Dashboard({ refreshKey, showToast, theme }: DashboardProps) {
           onPress={() => setViewingImage(null)}
         >
           <View style={styles.closeFullscreen}>
-            <FontAwesome name="times" size={16} color="#ffffff" style={{ marginRight: 6 }} />
-            <Text style={{ color: '#ffffff', fontSize: 14, fontFamily: 'Roboto_500Medium' }}>Tap anywhere to close</Text>
+            <FontAwesome name="times" size={16} color="#ffffff" />
           </View>
           {viewingImage && (
             <Image
