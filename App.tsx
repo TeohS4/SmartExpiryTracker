@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, LayoutChangeEvent, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -42,6 +41,9 @@ export default function App() {
     Roboto_500Medium,
     Roboto_700Bold,
   });
+  //To save state
+  const [ingredientImageUri, setIngredientImageUri] = useState<string | null>(null);
+  const [ingredientSummary, setIngredientSummary] = useState<string | null>(null);
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -138,11 +140,18 @@ export default function App() {
         {/* Active Tab Screen Content */}
         <View style={styles.content}>
           {activeTab === 'dashboard' ? (
-            <Dashboard refreshKey={refreshKey} showToast={showToast} theme={theme}/>
+            <Dashboard refreshKey={refreshKey} showToast={showToast} theme={theme} />
           ) : activeTab === 'form' ? (
-            <ExpiryForm onItemAdded={handleItemAdded} showToast={showToast} theme={theme}/>
+            <ExpiryForm onItemAdded={handleItemAdded} showToast={showToast} theme={theme} />
           ) : activeTab === 'ingredients' ? (
-            <IngredientScanner showToast={showToast} theme={theme} />
+            <IngredientScanner
+              showToast={showToast}
+              theme={theme}
+              imageUri={ingredientImageUri}
+              setImageUri={setIngredientImageUri}
+              summary={ingredientSummary}
+              setSummary={setIngredientSummary}
+            />
           ) : (
             <Settings isDarkMode={isDarkMode} onToggleDarkMode={setIsDarkMode} theme={theme} />
           )}
